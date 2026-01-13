@@ -1,11 +1,14 @@
 # 🏨 Hotel Reservation Prediction - MLOps Project
 
 [![Python](https://img.shields.io/badge/Python-3.8%2B-blue.svg)](https://www.python.org/)
+[![Flask](https://img.shields.io/badge/Flask-Web%20App-lightgrey.svg)](https://flask.palletsprojects.com/)
+[![Docker](https://img.shields.io/badge/Docker-Containerized-blue.svg)](https://www.docker.com/)
 [![MLflow](https://img.shields.io/badge/MLflow-Tracking-orange.svg)](https://mlflow.org/)
 [![LightGBM](https://img.shields.io/badge/LightGBM-Model-green.svg)](https://lightgbm.readthedocs.io/)
-[![scikit-learn](https://img.shields.io/badge/scikit--learn-ML-yellow.svg)](https://scikit-learn.org/)
+[![GCP](https://img.shields.io/badge/GCP-Cloud%20Run-red.svg)](https://cloud.google.com/run)
+[![Jenkins](https://img.shields.io/badge/Jenkins-CI%2FCD-red.svg)](https://www.jenkins.io/)
 
-A comprehensive MLOps pipeline for predicting hotel reservation booking status using machine learning. This project implements industry-standard MLOps practices including automated data ingestion from Google Cloud Storage, feature engineering, model training with hyperparameter optimization, experiment tracking with MLflow, and comprehensive logging.
+A comprehensive end-to-end MLOps pipeline for predicting hotel reservation booking status using machine learning. This production-ready project implements industry-standard MLOps practices including automated data ingestion from Google Cloud Storage, feature engineering, model training with hyperparameter optimization, experiment tracking with MLflow, web-based prediction interface, Docker containerization, and automated CI/CD deployment with Jenkins to Google Cloud Run.
 
 ## 📋 Table of Contents
 
@@ -15,6 +18,9 @@ A comprehensive MLOps pipeline for predicting hotel reservation booking status u
 - [Installation](#installation)
 - [Configuration](#configuration)
 - [Usage](#usage)
+- [Web Application](#web-application)
+- [Docker Deployment](#docker-deployment)
+- [CI/CD Pipeline](#cicd-pipeline)
 - [Model Performance](#model-performance)
 - [Pipeline Components](#pipeline-components)
 - [Technologies Used](#technologies-used)
@@ -22,13 +28,15 @@ A comprehensive MLOps pipeline for predicting hotel reservation booking status u
 
 ## 🎯 Overview
 
-This project predicts whether a hotel reservation will be confirmed or canceled based on various features such as booking information, customer preferences, and historical patterns. The system uses LightGBM (Light Gradient Boosting Machine) with automated hyperparameter tuning to achieve optimal performance.
+This project predicts whether a hotel reservation will be confirmed or canceled based on various features such as booking information, customer preferences, and historical patterns. The system uses LightGBM (Light Gradient Boosting Machine) with automated hyperparameter tuning to achieve optimal performance, deployed as a production-ready web application with automated CI/CD pipeline.
 
 **Key Highlights:**
 - **Accuracy**: 88.19%
 - **Precision**: 91.04%
 - **Recall**: 92.08%
 - **F1-Score**: 91.56%
+- **Deployment**: Dockerized Flask application on Google Cloud Run
+- **CI/CD**: Automated Jenkins pipeline for continuous deployment
 
 ## ✨ Features
 
@@ -44,6 +52,17 @@ This project predicts whether a hotel reservation will be confirmed or canceled 
   - Hyperparameter optimization across multiple dimensions
   - Cross-validation for robust model evaluation
 - **Experiment Tracking**: Full MLflow integration for reproducibility
+- **Web Application**: 
+  - Flask-based web interface for real-time predictions
+  - User-friendly form with input validation
+  - Responsive design with custom CSS styling
+- **Containerization**: 
+  - Docker support for consistent deployment environments
+  - Multi-stage builds for optimized image size
+- **CI/CD Pipeline**:
+  - Automated Jenkins pipeline
+  - Continuous deployment to Google Cloud Run
+  - Docker image building and pushing to Google Container Registry
 - **Comprehensive Logging**: Detailed logs for debugging and monitoring
 - **Custom Exception Handling**: Structured error management with traceback
 - **Modular Architecture**: Clean, maintainable, and scalable code structure
@@ -71,6 +90,8 @@ Hotel_Reservation_Prediction/
 │   ├── config.yaml         # Main configuration
 │   ├── model_param.py      # Model hyperparameters
 │   └── paths_configs.py    # Path configurations
+├── custom_jenkins/         # Custom Jenkins Docker configuration
+│   └── Dockerfile          # Jenkins with Google Cloud SDK
 ├── logs/                   # Application logs
 ├── mlruns/                 # MLflow experiment tracking
 ├── notebook/               # Jupyter notebooks for EDA
@@ -86,9 +107,17 @@ Hotel_Reservation_Prediction/
 │   ├── logger.py           # Logging configuration
 │   ├── model_training.py   # Basic model training
 │   └── model_training_mlflow.py # MLflow-integrated training
+├── static/                 # Static files for web app
+│   └── style.css           # CSS styling
+├── templates/              # HTML templates
+│   └── index.html          # Main web interface
 ├── utils/                  # Utility functions
 │   ├── __init__.py
 │   └── common_functions.py
+├── .gitignore              # Git ignore rules
+├── application.py          # Flask web application
+├── Dockerfile              # Docker configuration
+├── Jenkinsfile             # CI/CD pipeline definition
 ├── requirements.txt        # Project dependencies
 ├── setup.py                # Package setup
 └── git_commit.sh           # Git automation script
@@ -229,6 +258,149 @@ mlflow ui
 
 Then navigate to `http://localhost:5000` in your browser.
 
+## 🌐 Web Application
+
+The project includes a Flask-based web application for real-time predictions. The application provides an intuitive interface for users to input reservation details and receive instant booking status predictions.
+
+### Features
+
+- **User-Friendly Interface**: Clean, responsive design with custom CSS
+- **Input Validation**: Form validation for all required fields
+- **Real-Time Predictions**: Instant prediction results using the trained model
+- **Feature Inputs**:
+  - Lead Time (days between booking and arrival)
+  - Number of Special Requests
+  - Average Price Per Room
+  - Arrival Month and Date
+  - Market Segment Type (Aviation, Complimentary, Corporate, Offline, Online)
+  - Number of Week Nights
+  - Number of Weekend Nights
+  - Type of Meal Plan
+  - Room Type Reserved
+
+### Running the Web Application Locally
+
+1. Ensure the model is trained and saved in [artifacts/models/LightGBM_model.pkl](artifacts/models/LightGBM_model.pkl)
+
+2. Start the Flask application:
+   ```bash
+   python application.py
+   ```
+
+3. Open your browser and navigate to:
+   ```
+   http://localhost:8080
+   ```
+
+4. Fill in the reservation details and click submit to get predictions
+
+### Application Structure
+
+- **[application.py](application.py)**: Flask application with prediction endpoint
+- **[templates/index.html](templates/index.html)**: HTML form for user input
+- **[static/style.css](static/style.css)**: Custom styling for the web interface
+
+## 🐳 Docker Deployment
+
+The project is fully containerized using Docker for consistent deployment across different environments.
+
+### Dockerfile Features
+
+- **Base Image**: Python slim for minimal image size
+- **Automated Training**: Model training during image build
+- **Optimized Dependencies**: LightGBM-specific system dependencies
+- **Production Ready**: Configured for Flask application hosting
+
+### Building the Docker Image
+
+```bash
+docker build -t hotel-reservation-app .
+```
+
+### Running the Docker Container
+
+```bash
+docker run -p 8080:5000 hotel-reservation-app
+```
+
+Access the application at `http://localhost:8080`
+
+### Docker Image Details
+
+The Dockerfile:
+1. Uses Python slim base image for reduced size
+2. Installs system dependencies (libgomp1 for LightGBM)
+3. Copies application code
+4. Installs Python dependencies
+5. Runs the training pipeline during build
+6. Exposes port 5000 for Flask
+7. Sets the command to run the application
+
+## 🔄 CI/CD Pipeline
+
+Automated CI/CD pipeline using Jenkins for continuous integration and deployment to Google Cloud Run.
+
+### Pipeline Stages
+
+1. **Clone Repository**: 
+   - Clones the GitHub repository to Jenkins workspace
+   - Uses GitHub token authentication
+
+2. **Environment Setup**:
+   - Creates Python virtual environment
+   - Installs all dependencies
+   - Installs the package in editable mode
+
+3. **Build & Push Docker Image**:
+   - Authenticates with Google Cloud
+   - Builds Docker image
+   - Pushes to Google Container Registry (GCR)
+
+4. **Deploy to Cloud Run**:
+   - Deploys the application to Google Cloud Run
+   - Configures as managed service in us-central1
+   - Enables unauthenticated access for public use
+
+### Jenkins Configuration
+
+The [Jenkinsfile](Jenkinsfile) includes:
+
+```groovy
+environment {
+    VENV_DIR = 'venv'
+    GCP_PROJECT = "your-gcp-project-id"
+    GCLOUD_PATH = "/var/jenkins_home/google-cloud-sdk/bin"
+}
+```
+
+### Prerequisites for CI/CD
+
+1. **Jenkins Setup**:
+   - Jenkins server with Docker support
+   - Google Cloud SDK installed
+   - GitHub credentials configured
+   - GCP service account key
+
+2. **GCP Configuration**:
+   - Google Cloud Project
+   - Container Registry enabled
+   - Cloud Run API enabled
+   - Service account with necessary permissions
+
+3. **Jenkins Credentials**:
+   - `github-token`: GitHub personal access token
+   - `gcp-key`: Google Cloud service account JSON key
+
+### Custom Jenkins Docker Image
+
+The [custom_jenkins/Dockerfile](custom_jenkins/Dockerfile) extends the base Jenkins image with Google Cloud SDK for seamless GCP integration.
+
+### Triggering Deployment
+
+The pipeline can be triggered:
+- **Automatically**: On push to main branch (with webhook)
+- **Manually**: Through Jenkins UI
+
 ## 📊 Model Performance
 
 The trained LightGBM model achieves the following performance metrics on the test set:
@@ -348,6 +520,10 @@ Reusable helper functions:
 | **Data Processing** | pandas, numpy |
 | **Experiment Tracking** | MLflow |
 | **Cloud Storage** | Google Cloud Storage |
+| **Web Framework** | Flask |
+| **Containerization** | Docker |
+| **Cloud Platform** | Google Cloud Run, Google Container Registry |
+| **CI/CD** | Jenkins |
 | **Visualization** | matplotlib, seaborn |
 | **Configuration** | PyYAML |
 | **Development** | Jupyter Notebook, ipykernel |
@@ -366,20 +542,24 @@ seaborn
 imbalanced-learn
 lightgbm
 mlflow
+flask
 ```
 
 ## 📈 Future Enhancements
 
-- [ ] API deployment with FastAPI/Flask
-- [ ] Docker containerization
-- [ ] CI/CD pipeline with GitHub Actions
+- [x] Flask web application for predictions
+- [x] Docker containerization
+- [x] CI/CD pipeline with Jenkins
+- [x] Deployment to Google Cloud Run
+- [ ] API documentation with Swagger/OpenAPI
 - [ ] Model serving with MLflow Model Registry
 - [ ] Feature store integration
-- [ ] Real-time prediction endpoint
 - [ ] Model monitoring and drift detection
 - [ ] A/B testing framework
 - [ ] Advanced feature engineering
 - [ ] Ensemble modeling
+- [ ] Kubernetes orchestration
+- [ ] Prometheus metrics and Grafana dashboards
 
 ## 👤 Author
 
@@ -391,6 +571,10 @@ This project is available for educational and portfolio purposes.
 
 ---
 
-**Note**: Ensure you have proper Google Cloud credentials configured before running the data ingestion pipeline. Update the `config/config.yaml` file with your GCS bucket details.
+**Note**: 
+- Ensure you have proper Google Cloud credentials configured before running the data ingestion pipeline
+- Update the [config/config.yaml](config/config.yaml) file with your GCS bucket details
+- For Docker deployment, make sure Docker is installed and running
+- For CI/CD deployment, configure Jenkins with the required credentials and GCP access
 
 For questions or suggestions, feel free to open an issue or submit a pull request!

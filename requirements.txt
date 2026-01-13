@@ -9,3 +9,5 @@ seaborn
 imbalanced-learn
 lightgbm
 mlflow
+flask
+joblib

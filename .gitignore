@@ -7,3 +7,6 @@ __pycache__/
 logs/
 Mlops_Project_Reservation_Prediction.egg-info/
 mlruns/
+artifacts/models
+*.pkl
+*.joblib

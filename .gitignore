@@ -1,0 +1,9 @@
+.venv/
+mlflow.db
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints
+logs/
+Mlops_Project_Reservation_Prediction.egg-info/
+mlruns/

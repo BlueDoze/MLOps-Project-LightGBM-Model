@@ -1,0 +1,7 @@
+{
+    "boosting_type": "gbdt",
+    "learning_rate": 0.1293700315892974,
+    "max_depth": 23,
+    "n_estimators": 314,
+    "num_leaves": 94
+}
